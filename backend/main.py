@@ -68,6 +68,16 @@ app.add_middleware(
 )
 
 
+@app.get("/api/debug/env")
+async def debug_env():
+    key = os.getenv("ELEVENLABS_API_KEY", "NOT SET")
+    return {
+        "key_length": len(key),
+        "key_preview": key[:5] + "..." + key[-5:] if len(key) > 10 else key,
+        "has_quotes": key.startswith('"') or key.startswith("'"),
+        "has_spaces": key != key.strip(),
+    }
+
 # ── Health Check ────────────────────────────────────────────────
 
 @app.get("/")
