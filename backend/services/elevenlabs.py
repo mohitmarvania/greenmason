@@ -5,7 +5,7 @@ import httpx
 
 
 def _get_api_key():
-    return os.getenv("ELEVENLABS_API_KEY", "")
+    return os.getenv("ELEVENLABS_API_KEY", "").strip()
 
 
 def _get_voice_id():
@@ -54,6 +54,6 @@ async def generate_score_summary_audio(username: str, score: int, rank: int) -> 
         f"Hey {username}! Your Green Score is {score} points, "
         f"and you're ranked number {rank} on the campus leaderboard. "
         f"Keep making sustainable choices — every action counts! "
-        f"Happy Valentine's Day from GreenMason."
+        f"Happy Green Day."
     )
     return await text_to_speech(text)
