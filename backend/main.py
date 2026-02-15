@@ -77,6 +77,41 @@ async def debug_env():
         "stripped": len(key.strip().rstrip('\x00\n\r\t')),
     }
 
+@app.get("/api/debug/voice")
+async def debug_voice():
+    import httpx
+    key = os.getenv("ELEVENLABS_API_KEY", "").strip()
+    voice_id = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")
+    
+    # First test: check if key works at all
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        user_resp = await client.get(
+            "https://api.elevenlabs.io/v1/user",
+            headers={"xi-api-key": key}
+        )
+        
+        # Second test: try TTS
+        tts_resp = await client.post(
+            f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
+            headers={
+                "Accept": "audio/mpeg",
+                "Content-Type": "application/json",
+                "xi-api-key": key,
+            },
+            json={
+                "text": "Hello test",
+                "model_id": "eleven_multilingual_v2",
+                "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}
+            }
+        )
+        
+        return {
+            "user_status": user_resp.status_code,
+            "user_body": user_resp.json() if user_resp.status_code == 200 else user_resp.text[:200],
+            "tts_status": tts_resp.status_code,
+            "tts_body": "audio OK" if tts_resp.status_code == 200 else tts_resp.text[:300],
+        }
+
 # ── Health Check ────────────────────────────────────────────────
 
 @app.get("/")
