@@ -1,0 +1,48 @@
+# ── Environment & Secrets ──
+.env
+.env.local
+.env.production
+.env*.local
+backend/.env
+frontend/.env.local
+
+# ── Google Cloud Credentials ──
+*-credentials.json
+*-service-account.json
+gen-lang-client-*.json
+gcp-key.json
+gcp-key-b64.txt
+application_default_credentials.json
+
+# ── Python ──
+venv/
+backend/venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# ── Node ──
+node_modules/
+frontend/node_modules/
+.next/
+frontend/.next/
+out/
+dist/
+build/
+
+# ── OS ──
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# ── IDE ──
+.vscode/
+.idea/
+*.sublime-*
+
+# ── Misc ──
+*.log
+npm-debug.log*
+.vercel
