@@ -73,9 +73,8 @@ async def debug_env():
     key = os.getenv("ELEVENLABS_API_KEY", "NOT SET")
     return {
         "key_length": len(key),
-        "key_preview": key[:5] + "..." + key[-5:] if len(key) > 10 else key,
-        "has_quotes": key.startswith('"') or key.startswith("'"),
-        "has_spaces": key != key.strip(),
+        "key_bytes": [ord(c) for c in key[-5:]],
+        "stripped": len(key.strip().rstrip('\x00\n\r\t')),
     }
 
 # ── Health Check ────────────────────────────────────────────────
