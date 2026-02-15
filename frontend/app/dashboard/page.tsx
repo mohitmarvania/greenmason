@@ -81,13 +81,35 @@ export default function DashboardPage() {
     setIsSubmittingPledge(false);
   };
 
-  const handlePlayScore = () => {
+  const handlePlayScore = async () => {
     if (!username) return;
     setIsPlayingAudio(true);
-    const audio = new Audio(getScoreSummaryAudioUrl(username));
-    audio.onended = () => setIsPlayingAudio(false);
-    audio.onerror = () => setIsPlayingAudio(false);
-    audio.play().catch(() => setIsPlayingAudio(false));
+
+    const scoreText = `Hey ${user?.display_name || username}! Your Green Score is ${user?.total_score || 0} points, and you're ranked number ${user?.rank || 1} on the campus leaderboard. Keep making sustainable choices — every action counts! Happy Valentine's Day from GreenMason.`;
+
+    // Try ElevenLabs first, fall back to browser speech
+    try {
+      const audio = new Audio(getScoreSummaryAudioUrl(username));
+      audio.onended = () => setIsPlayingAudio(false);
+      audio.onerror = () => {
+        // Fallback: browser built-in speech
+        const utterance = new SpeechSynthesisUtterance(scoreText);
+        utterance.rate = 1.0;
+        utterance.pitch = 1.1;
+        utterance.onend = () => setIsPlayingAudio(false);
+        utterance.onerror = () => setIsPlayingAudio(false);
+        window.speechSynthesis.speak(utterance);
+      };
+      await audio.play();
+    } catch {
+      // Fallback: browser built-in speech
+      const utterance = new SpeechSynthesisUtterance(scoreText);
+      utterance.rate = 1.0;
+      utterance.pitch = 1.1;
+      utterance.onend = () => setIsPlayingAudio(false);
+      utterance.onerror = () => setIsPlayingAudio(false);
+      window.speechSynthesis.speak(utterance);
+    }
   };
 
   const stage = getSproutStage(user?.total_score || 0);
