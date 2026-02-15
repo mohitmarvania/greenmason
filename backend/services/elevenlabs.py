@@ -3,31 +3,30 @@
 import os
 import httpx
 
-ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
-ELEVENLABS_VOICE_ID = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")  # Rachel voice
 
-# ElevenLabs API endpoint
-TTS_URL = f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVENLABS_VOICE_ID}"
+def _get_api_key():
+    return os.getenv("ELEVENLABS_API_KEY", "")
+
+
+def _get_voice_id():
+    return os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")
 
 
 async def text_to_speech(text: str) -> bytes:
     """
     Convert text to speech using ElevenLabs API.
-
-    Args:
-        text: Text to convert (max ~500 chars for free tier efficiency)
-
-    Returns:
-        bytes: MP3 audio data
     """
-    # Truncate if too long to conserve free tier quota
     if len(text) > 500:
         text = text[:497] + "..."
+
+    api_key = _get_api_key()
+    voice_id = _get_voice_id()
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
 
     headers = {
         "Accept": "audio/mpeg",
         "Content-Type": "application/json",
-        "xi-api-key": ELEVENLABS_API_KEY,
+        "xi-api-key": api_key,
     }
 
     payload = {
@@ -42,7 +41,7 @@ async def text_to_speech(text: str) -> bytes:
     }
 
     async with httpx.AsyncClient(timeout=30.0) as client:
-        response = await client.post(TTS_URL, json=payload, headers=headers)
+        response = await client.post(url, json=payload, headers=headers)
         response.raise_for_status()
         return response.content
 
@@ -50,14 +49,6 @@ async def text_to_speech(text: str) -> bytes:
 async def generate_score_summary_audio(username: str, score: int, rank: int) -> bytes:
     """
     Generate an audio summary of a user's Green Score.
-
-    Args:
-        username: User's display name
-        score: Total green score
-        rank: Leaderboard rank
-
-    Returns:
-        bytes: MP3 audio data
     """
     text = (
         f"Hey {username}! Your Green Score is {score} points, "
